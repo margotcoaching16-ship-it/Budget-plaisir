@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entretien Bilan de Santé</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0071e3;
+            --primary-light: #0a84ff;
+            --accent: #34c759;
+            --bg-dark: #000000;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #2a2a2a;
+            --glass-light: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text: #ffffff;
+            --text-secondary: #a1a1a6;
+            --success: #34c759;
+            --danger: #ff3b30;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #000000 0%, #0a0e27 50%, #001a4d 100%);
+            background-attachment: fixed;
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* Animated background elements */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(10, 132, 255, 0.1) 0%, transparent 70%);
+            animation: gradientShift 15s ease-in-out infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(100px, 100px) scale(1.1); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* GLASS MORPHISM */
+        .glass {
+            background: var(--glass-light);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                        0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-content {
+            background: rgba(26, 26, 26, 0.8);
+            border-radius: 18px;
+            padding: 30px;
+            position: relative;
+        }
+
+        .glass-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            border-radius: 18px 18px 0 0;
+        }
+
+        /* HOME PAGE */
+        .home-page {
+            animation: fadeInScale 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .home-header {
+            text-align: center;
+            margin: 60px 0 50px;
+            animation: slideDown 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .home-header h1 {
+            font-size: 3.5em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+        }
+
+        .home-header p {
+            font-size: 1.1em;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .new-questionnaire {
+            margin-bottom: 50px;
+            animation: slideUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+        }
+
+        .glass-card {
+            background: var(--glass-light);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        }
+
+        .glass-card h2 {
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            color: white;
+            font-size: 1em;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-family: inherit;
+        }
+
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .input-group input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.1);
+        }
+
+        /* BUTTONS */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-size: 1em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.15);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: var(--primary-light);
+            color: white;
+            box-shadow: 0 8px 24px rgba(10, 132, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 12px 32px rgba(10, 132, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-danger {
+            background: rgba(255, 59, 48, 0.2);
+            color: var(--danger);
+            border: 1px solid rgba(255, 59, 48, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: rgba(255, 59, 48, 0.3);
+            border-color: rgba(255, 59, 48, 0.5);
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.9em;
+        }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+        }
+
+        .questionnaires-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            animation: slideUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+        }
+
+        .questionnaire-card {
+            background: var(--glass-light);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .questionnaire-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        }
+
+        .questionnaire-card:hover {
+            border-color: var(--primary-light);
+            box-shadow: 0 12px 48px rgba(10, 132, 255, 0.2),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transform: translateY(-4px);
+            background: rgba(10, 132, 255, 0.1);
+        }
+
+        .questionnaire-card h3 {
+            font-size: 1.2em;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .questionnaire-card p {
+            color: var(--text-secondary);
+            margin: 0;
+            font-size: 0.9em;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .card-actions .btn {
+            flex: 1;
+        }
+
+        /* FORM PAGE */
+        .form-page {
+            animation: fadeInScale 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
+
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--glass-light);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            animation: slideDown 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .form-header h1 {
+            font-size: 2em;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .form-header .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .form-container {
+            background: var(--glass-light);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            max-width: 900px;
+            margin: 0 auto;
+            animation: fadeInScale 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+        }
+
+        .form-container > div {
+            background: rgba(26, 26, 26, 0.8);
+            border-radius: 18px;
+            padding: 40px;
+            position: relative;
+        }
+
+        .form-container > div::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            border-radius: 18px 18px 0 0;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .section h2 {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--primary);
+            background: linear-gradient(90deg, var(--primary-light), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text);
+            font-size: 0.95em;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="tel"],
+        .form-group input[type="number"],
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            color: white;
+            font-size: 1em;
+            font-family: inherit;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.15),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .two-cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .three-cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* CHECKBOX AVEC NOTES */
+        .checkbox-with-note {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 10px;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .checkbox-with-note:hover {
+            border-color: rgba(10, 132, 255, 0.4);
+            background: rgba(10, 132, 255, 0.08);
+        }
+
+        .checkbox-with-note input[type="checkbox"] {
+            accent-color: var(--primary-light);
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .checkbox-with-note label {
+            margin: 0;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline;
+        }
+
+        .note-input {
+            margin-top: 10px;
+            display: none;
+        }
+
+        .checkbox-with-note input[type="checkbox"]:checked ~ .note-input {
+            display: block;
+        }
+
+        .note-input input,
+        .note-input textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 0.9em;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            margin-top: 8px;
+            color: white;
+            font-family: inherit;
+        }
+
+        .note-input input:focus,
+        .note-input textarea:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* DYNAMIC ITEMS */
+        .sport-item,
+        .repas-item,
+        .exercise-item {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+            border-left: 3px solid var(--primary-light);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .sport-item:hover,
+        .repas-item:hover,
+        .exercise-item:hover {
+            border-color: var(--primary-light);
+            background: rgba(10, 132, 255, 0.08);
+        }
+
+        .sport-item input,
+        .sport-item textarea,
+        .repas-item input,
+        .repas-item textarea,
+        .exercise-item input,
+        .exercise-item textarea {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+            margin: 6px 0;
+        }
+
+        .sport-item input:focus,
+        .sport-item textarea:focus,
+        .repas-item input:focus,
+        .repas-item textarea:focus,
+        .exercise-item input:focus,
+        .exercise-item textarea:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sport-item-header,
+        .repas-item-header,
+        .exercise-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .sport-item-header input,
+        .exercise-header input {
+            flex: 1;
+        }
+
+        .series-container {
+            display: grid;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .series-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .series-item input {
+            padding: 8px;
+            font-size: 0.9em;
+            margin: 0 !important;
+        }
+
+        .series-item label {
+            font-size: 0.85em;
+            margin-bottom: 4px;
+            margin: 0;
+        }
+
+        /* ALERTS */
+        .alert {
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(52, 199, 89, 0.15);
+            border-left: 3px solid var(--success);
+            color: var(--success);
+            animation: slideDown 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .alert-error {
+            background: rgba(255, 59, 48, 0.15);
+            border-left-color: var(--danger);
+            color: var(--danger);
+        }
+
+        /* UTILITIES */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            justify-content: space-between;
+        }
+
+        @media (max-width: 768px) {
+            .home-header h1 {
+                font-size: 2.5em;
+            }
+
+            .two-cols,
+            .three-cols {
+                grid-template-columns: 1fr;
+            }
+
+            .questionnaires-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .form-header .header-actions {
+                width: 100%;
+            }
+
+            .form-header .header-actions .btn {
+                flex: 1;
+            }
+
+            .button-group {
+                flex-direction: column-reverse;
+            }
+
+            .series-item {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .form-container > div {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HOME PAGE -->
+        <div id="homePage" class="home-page">
+            <div class="home-header">
+                <h1>Entretien Bilan de Santé</h1>
+                <p>Gestion personnalisée des questionnaires de suivi</p>
+            </div>
+
+            <div class="new-questionnaire">
+                <div class="glass-card">
+                    <h2>➕ Créer un nouveau questionnaire</h2>
+                    <div class="input-group">
+                        <input type="text" id="newName" placeholder="Nom du client (ex: Jean Dupont)">
+                        <button class="btn btn-primary" onclick="createNewQuestionnaire()">Créer</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="questionnairesContainer" class="questionnaires-grid"></div>
+        </div>
+
+        <!-- FORM PAGE -->
+        <div id="formPage" class="form-page hidden">
+            <div class="form-header">
+                <h1 id="formTitle"></h1>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="goHome()">← Retour</button>
+                    <button class="btn btn-primary" onclick="exportToPDF()">📥 Exporter en PDF</button>
+                </div>
+            </div>
+
+            <div id="alertContainer"></div>
+
+            <div class="form-container">
+                <div id="formContent">
+                    <!-- Form sections will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let questionnaires = JSON.parse(localStorage.getItem('questionnaires')) || [];
+        let currentQuestionnaire = null;
+
+        // Create new questionnaire
+        function createNewQuestionnaire() {
+            const name = document.getElementById('newName').value.trim();
+            if (!name) {
+                alert('Veuillez entrer un nom');
+                return;
+            }
+
+            const q = {
+                id: Date.now(),
+                name: name,
+                date: new Date().toLocaleString('fr-FR'),
+                data: {}
+            };
+
+            questionnaires.push(q);
+            saveQuestionnaires();
+            document.getElementById('newName').value = '';
+            loadQuestionnaires();
+        }
+
+        // Load and display questionnaires
+        function loadQuestionnaires() {
+            const container = document.getElementById('questionnairesContainer');
+            container.innerHTML = '';
+
+            if (questionnaires.length === 0) {
+                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 40px;">Aucun questionnaire créé. Commencez par en créer un !</p>';
+                return;
+            }
+
+            questionnaires.forEach(q => {
+                const card = document.createElement('div');
+                card.className = 'questionnaire-card';
+                card.innerHTML = `
+                    <h3>${q.name}</h3>
+                    <p>📅 ${q.date}</p>
+                    <div class="card-actions">
+                        <button class="btn btn-primary" onclick="openQuestionnaire(${q.id})">Ouvrir</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteQuestionnaire(${q.id})">Supprimer</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Open questionnaire
+        function openQuestionnaire(id) {
+            currentQuestionnaire = questionnaires.find(q => q.id === id);
+            if (!currentQuestionnaire) return;
+
+            document.getElementById('formTitle').textContent = currentQuestionnaire.name;
+            renderForm();
+            document.getElementById('homePage').classList.add('hidden');
+            document.getElementById('formPage').classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        // Go back to home - FIXED
+        function goHome() {
+            saveCurrentForm();
+            document.getElementById('formPage').classList.add('hidden');
+            document.getElementById('homePage').classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        // Delete questionnaire
+        function deleteQuestionnaire(id) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce questionnaire ?')) {
+                questionnaires = questionnaires.filter(q => q.id !== id);
+                saveQuestionnaires();
+                loadQuestionnaires();
+            }
+        }
+
+        // Save questionnaires to localStorage
+        function saveQuestionnaires() {
+            localStorage.setItem('questionnaires', JSON.stringify(questionnaires));
+        }
+
+        // Save current form - FIXED
+        function saveCurrentForm() {
+            if (!currentQuestionnaire) return;
+
+            const formData = {};
+
+            // Get all form inputs
+            const form = document.getElementById('mainForm');
+            if (form) {
+                const inputs = form.querySelectorAll('[name]');
+                inputs.forEach(el => {
+                    if (el.type === 'checkbox') {
+                        formData[el.name] = el.checked;
+                    } else {
+                        formData[el.name] = el.value;
+                    }
+                });
+
+                // Save sports
+                const sports = [];
+                form.querySelectorAll('.sport-item').forEach(item => {
+                    const discipline = item.querySelector('.discipline-input').value;
+                    if (discipline || item.querySelector('.duree-input').value || item.querySelector('.sport-notes').value) {
+                        sports.push({
+                            discipline: discipline,
+                            duree: item.querySelector('.duree-input').value,
+                            notes: item.querySelector('.sport-notes').value
+                        });
+                    }
+                });
+                if (sports.length > 0) formData.sports = sports;
+
+                // Save repas
+                const repas = [];
+                form.querySelectorAll('.repas-item').forEach(item => {
+                    const name = item.querySelector('.repas-name').value;
+                    if (name || item.querySelector('.repas-description').value) {
+                        repas.push({
+                            name: name,
+                            description: item.querySelector('.repas-description').value
+                        });
+                    }
+                });
+                if (repas.length > 0) formData.repas = repas;
+
+                // Save exercises
+                const exercises = [];
+                form.querySelectorAll('.exercise-item').forEach(item => {
+                    const name = item.querySelector('.exercise-name').value;
+                    if (name) {
+                        const series = [];
+                        item.querySelectorAll('.series-item').forEach(s => {
+                            const reps = s.querySelector('.series-reps').value;
+                            const weight = s.querySelector('.series-weight').value;
+                            const notes = s.querySelector('.series-notes').value;
+                            if (reps || weight) {
+                                series.push({ reps, weight, notes });
+                            }
+                        });
+                        exercises.push({ name, series });
+                    }
+                });
+                if (exercises.length > 0) formData.exercises = exercises;
+            }
+
+            currentQuestionnaire.data = formData;
+            saveQuestionnaires();
+        }
+
+        // Render form
+        function renderForm() {
+            const formContent = document.getElementById('formContent');
+            const data = currentQuestionnaire.data;
+
+            formContent.innerHTML = `
+                <form id="mainForm">
+                    <!-- INFOS PERSONNELLES -->
+                    <div class="section">
+                        <h2>👤 Informations Personnelles</h2>
+                        <div class="two-cols">
+                            <div class="form-group">
+                                <label>Nom *</label>
+                                <input type="text" name="nom" value="${data.nom || ''}" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Prénom *</label>
+                                <input type="text" name="prenom" value="${data.prenom || ''}" required>
+                            </div>
+                        </div>
+                        <div class="three-cols">
+                            <div class="form-group">
+                                <label>Âge *</label>
+                                <input type="number" name="age" value="${data.age || ''}" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Taille (cm) *</label>
+                                <input type="number" name="taille" value="${data.taille || ''}" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Poids (kg) *</label>
+                                <input type="number" name="poids" step="0.1" value="${data.poids || ''}" required>
+                            </div>
+                        </div>
+                        <div class="two-cols">
+                            <div class="form-group">
+                                <label>Téléphone</label>
+                                <input type="tel" name="telephone" value="${data.telephone || ''}">
+                            </div>
+                            <div class="form-group">
+                                <label>E-mail</label>
+                                <input type="email" name="email" value="${data.email || ''}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SITUATION PROFESSIONNELLE -->
+                    <div class="section">
+                        <h2>💼 Situation Professionnelle</h2>
+
+                        <div class="form-group">
+                            <label>Profession</label>
+                            <input type="text" name="profession" value="${data.profession || ''}">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Conditions de travail</label>
+                            <p style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 10px;">Exemples de questions : Horaires, environnement, stress, équipe, télétravail, déplacements, etc.</p>
+                            <textarea name="conditionsTravail" placeholder="Décrivez les conditions de travail du client...">${data.conditionsTravail || ''}</textarea>
+                        </div>
+
+                        <div class="two-cols">
+                            <div class="form-group">
+                                <label>Jours de travail par semaine</label>
+                                <input type="number" step="0.5" name="joursTravail" value="${data.joursTravail || ''}">
+                            </div>
+                            <div class="form-group">
+                                <label>Jours de repos par semaine</label>
+                                <input type="number" step="0.5" name="joursRepos" value="${data.joursRepos || ''}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SANTÉ / PHYSIQUE -->
+                    <div class="section">
+                        <h2>🏃 Questions Santé / Physique</h2>
+
+                        <div class="form-group">
+                            <label>Passé sportif</label>
+                            <p style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 10px;">Exemple : Discipline, durée, niveau, résultats...</p>
+                            <div id="sportsList"></div>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="addSport()">+ Ajouter un sport</button>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Depuis combien de temps ne faites-vous plus de sport ?</label>
+                            <textarea name="pauseSport" placeholder="Ex: 2 ans, 6 mois...">${data.pauseSport || ''}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Déclic de reprise</label>
+                            <textarea name="declicReprise" placeholder="Qu'est-ce qui motive la reprise du sport ?">${data.declicReprise || ''}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Objectif et importance</label>
+                            <textarea name="objectif" placeholder="Quel est l'objectif ? Pourquoi c'est important ?">${data.objectif || ''}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Résultats antérieurs</label>
+                            <textarea name="resultatsSeul" placeholder="Quels résultats a-t-il obtenu en entraînant seul ?">${data.resultatsSeul || ''}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Contre-indications et problèmes de santé</label>
+                            <p style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 10px;">Cochez les problèmes détectés et ajoutez des notes</p>
+                            <div id="healthProblems"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Sommeil</label>
+                            <textarea name="sommeil" placeholder="Qualité du sommeil, nombre d'heures, troubles...">${data.sommeil || ''}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Autres observations</label>
+                            <textarea name="autresSante" placeholder="Notes supplémentaires...">${data.autresSante || ''}</textarea>
+                        </div>
+                    </div>
+
+                    <!-- ALIMENTATION -->
+                    <div class="section">
+                        <h2>🍽️ Alimentation</h2>
+
+                        <div class="form-group">
+                            <label>Nombre de repas par jour</label>
+                            <input type="number" name="nbRepas" min="1" max="10" value="${data.nbRepas || 3}" onchange="updateRepasFields()">
+                        </div>
+
+                        <div id="repasContainer" class="repas-container"></div>
+
+                        <div class="form-group">
+                            <label>Habitudes alimentaires</label>
+                            <p style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 10px;">Notez ce que vous consommez régulièrement et les détails importants</p>
+                            <div id="consommationList"></div>
+                        </div>
+                    </div>
+
+                    <!-- HISTORIQUE MÉDICAL -->
+                    <div class="section">
+                        <h2>⚕️ Historique Médical</h2>
+
+                        <div class="form-group">
+                            <label>Étourdissements, vertiges ou faiblesses</label>
+                            <textarea name="etourdissements" placeholder="Détails...">${data.etourdissements || ''}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Problèmes de dos</label>
+                            <textarea name="problemesDos" placeholder="Détails...">${data.problemesDos || ''}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Traumatismes osseux antérieurs</label>
+                            <textarea name="traumatismes" placeholder="Détails...">${data.traumatismes || ''}</textarea>
+                        </div>
+                    </div>
+
+                    <!-- IMPÉDANCEMÈTRE -->
+                    <div class="section">
+                        <h2>⚖️ Impédancemètre</h2>
+                        <div class="three-cols">
+                            <div class="form-group">
+                                <label>IMC</label>
+                                <input type="number" name="imc" step="0.1" value="${data.imc || ''}">
+                            </div>
+                            <div class="form-group">
+                                <label>Masse Grasse (%)</label>
+                                <input type="number" name="masseGrasse" step="0.1" value="${data.masseGrasse || ''}">
+                            </div>
+                            <div class="form-group">
+                                <label>Masse Musculaire (kg)</label>
+                                <input type="number" name="masseMuscle" step="0.1" value="${data.masseMuscle || ''}">
+                            </div>
+                        </div>
+                        <div class="three-cols">
+                            <div class="form-group">
+                                <label>Masse Hydrique (%)</label>
+                                <input type="number" name="masseHydrique" step="0.1" value="${data.masseHydrique || ''}">
+                            </div>
+                            <div class="form-group">
+                                <label>Métabolisme de Base</label>
+                                <input type="number" name="metabolisme" step="0.1" value="${data.metabolisme || ''}">
+                            </div>
+                            <div class="form-group">
+                                <label>Graisse Viscérale</label>
+                                <input type="number" name="graisseVisceral" step="0.1" value="${data.graisseVisceral || ''}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TESTS PHYSIQUES -->
+                    <div class="section">
+                        <h2>💪 Tests Physiques</h2>
+                        <p style="font-size: 0.9em; color: var(--text-secondary); margin-bottom: 20px;">Vous pouvez ajouter, modifier ou supprimer les exercices. Pour chaque exercice, ajoutez les séries avec reps et poids.</p>
+                        <div id="exercisesList"></div>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="addExercise()">+ Ajouter un exercice</button>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="button" class="btn btn-secondary" onclick="goHome()">← Retour</button>
+                        <button type="button" class="btn btn-primary" onclick="saveForm()">💾 Sauvegarder</button>
+                    </div>
+                </form>
+            `;
+
+            // Initialize fields
+            renderSports();
+            updateRepasFields();
+            renderConsommation();
+            renderHealthProblems();
+            renderExercises();
+
+            // Add event listeners
+            setupFormListeners();
+        }
+
+        // SPORTS
+        function addSport() {
+            const list = document.getElementById('sportsList');
+            const item = document.createElement('div');
+            item.className = 'sport-item';
+            item.innerHTML = `
+                <div class="sport-item-header">
+                    <input type="text" class="discipline-input" placeholder="Discipline" value="">
+                    <button type="button" class="btn btn-danger btn-icon" onclick="this.parentElement.parentElement.remove()">🗑</button>
+                </div>
+                <div class="two-cols" style="margin-bottom: 10px;">
+                    <input type="text" class="duree-input" placeholder="Durée">
+                    <input type="text" placeholder="Niveau/Résultats">
+                </div>
+                <textarea class="sport-notes" placeholder="Notes supplémentaires..."></textarea>
+            `;
+            list.appendChild(item);
+        }
+
+        function renderSports() {
+            const list = document.getElementById('sportsList');
+            list.innerHTML = '';
+            if (currentQuestionnaire.data.sports) {
+                currentQuestionnaire.data.sports.forEach(sport => {
+                    const item = document.createElement('div');
+                    item.className = 'sport-item';
+                    item.innerHTML = `
+                        <div class="sport-item-header">
+                            <input type="text" class="discipline-input" placeholder="Discipline" value="${sport.discipline || ''}">
+                            <button type="button" class="btn btn-danger btn-icon" onclick="this.parentElement.parentElement.remove()">🗑</button>
+                        </div>
+                        <div class="two-cols" style="margin-bottom: 10px;">
+                            <input type="text" class="duree-input" placeholder="Durée" value="${sport.duree || ''}">
+                            <input type="text" placeholder="Niveau/Résultats">
+                        </div>
+                        <textarea class="sport-notes" placeholder="Notes supplémentaires...">${sport.notes || ''}</textarea>
+                    `;
+                    list.appendChild(item);
+                });
+            }
+            if (list.children.length === 0) {
+                addSport();
+            }
+        }
+
+        // REPAS
+        function updateRepasFields() {
+            const nbRepas = parseInt(document.querySelector('input[name="nbRepas"]').value) || 3;
+            const container = document.getElementById('repasContainer');
+            container.innerHTML = '';
+
+            for (let i = 1; i <= nbRepas; i++) {
+                const repasData = currentQuestionnaire.data.repas && currentQuestionnaire.data.repas[i-1];
+                const item = document.createElement('div');
+                item.className = 'repas-item';
+                item.innerHTML = `
+                    <div class="repas-item-header">
+                        <h4>Repas ${i}</h4>
+                    </div>
+                    <input type="text" class="repas-name" placeholder="Type de repas (petit-déj, déjeuner...)" value="${repasData ? repasData.name : ''}">
+                    <textarea class="repas-description" placeholder="Habitudes alimentaires (aliments, horaires, portions...)"> ${repasData ? repasData.description : ''}</textarea>
+                `;
+                container.appendChild(item);
+            }
+        }
+
+        // CONSOMMATION
+        const consommationCategories = [
+            'Eau',
+            'Sodas',
+            'Alcool',
+            'Café/Thé',
+            'Viande',
+            'Fruits et légumes',
+            'Produits laitiers',
+            'Gluten/Lactose',
+            'Suppléments',
+            'Autres'
+        ];
+
+        function renderConsommation() {
+            const list = document.getElementById('consommationList');
+            list.innerHTML = '';
+            consommationCategories.forEach(cat => {
+                const value = currentQuestionnaire.data['conso_' + cat] || '';
+                const item = document.createElement('div');
+                item.className = 'form-group';
+                item.innerHTML = `
+                    <label>${cat}</label>
+                    <input type="text" name="conso_${cat}" placeholder="Détails..." value="${value}">
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        // HEALTH PROBLEMS
+        const healthProblems = [
+            'Fatigue',
+            'Sommeil/Insomnie',
+            'Stress/Anxiété',
+            'Articulations',
+            'Respiration',
+            'Circulation/Tension',
+            'Digestion',
+            'Nutrition/Poids',
+            'Cardiaque',
+            'Autres'
+        ];
+
+        function renderHealthProblems() {
+            const list = document.getElementById('healthProblems');
+            list.innerHTML = '';
+            healthProblems.forEach(problem => {
+                const checked = currentQuestionnaire.data['health_' + problem] || false;
+                const notes = currentQuestionnaire.data['health_notes_' + problem] || '';
+                const item = document.createElement('div');
+                item.className = 'checkbox-with-note';
+                item.innerHTML = `
+                    <input type="checkbox" name="health_${problem}" ${checked ? 'checked' : ''}>
+                    <label>${problem}</label>
+                    <div class="note-input">
+                        <textarea name="health_notes_${problem}" placeholder="Notes...">${notes}</textarea>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        // EXERCISES
+        function addExercise() {
+            const list = document.getElementById('exercisesList');
+            const item = document.createElement('div');
+            item.className = 'exercise-item';
+            item.innerHTML = `
+                <div class="exercise-header">
+                    <input type="text" class="exercise-name" placeholder="Nom de l'exercice" value="">
+                    <button type="button" class="btn btn-danger btn-icon" onclick="this.parentElement.parentElement.remove()">🗑</button>
+                </div>
+                <div class="series-container">
+                    <div class="series-item">
+                        <label style="grid-column: 1/-1; font-weight: 600; color: var(--primary-light);">Ajouter une série</label>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="addSeries(this.parentElement)">+ Ajouter une série</button>
+            `;
+            list.appendChild(item);
+        }
+
+        function addSeries(exerciseEl) {
+            const container = exerciseEl.querySelector('.series-container');
+            const item = document.createElement('div');
+            item.className = 'series-item';
+            item.innerHTML = `
+                <div>
+                    <label>Reps</label>
+                    <input type="number" class="series-reps" placeholder="Nombre">
+                </div>
+                <div>
+                    <label>Poids (kg)</label>
+                    <input type="number" class="series-weight" step="0.5" placeholder="Poids">
+                </div>
+                <div>
+                    <label>Notes</label>
+                    <input type="text" class="series-notes" placeholder="Notes">
+                </div>
+                <button type="button" class="btn btn-danger btn-icon btn-sm" onclick="this.parentElement.remove()">🗑</button>
+            `;
+            container.appendChild(item);
+        }
+
+        function renderExercises() {
+            const list = document.getElementById('exercisesList');
+            list.innerHTML = '';
+
+            if (currentQuestionnaire.data.exercises && currentQuestionnaire.data.exercises.length > 0) {
+                currentQuestionnaire.data.exercises.forEach(exercise => {
+                    const item = document.createElement('div');
+                    item.className = 'exercise-item';
+                    item.innerHTML = `
+                        <div class="exercise-header">
+                            <input type="text" class="exercise-name" placeholder="Nom de l'exercice" value="${exercise.name || ''}">
+                            <button type="button" class="btn btn-danger btn-icon" onclick="this.parentElement.parentElement.remove()">🗑</button>
+                        </div>
+                        <div class="series-container">
+                            ${(exercise.series || []).map(series => `
+                                <div class="series-item">
+                                    <div>
+                                        <label>Reps</label>
+                                        <input type="number" class="series-reps" placeholder="Nombre" value="${series.reps || ''}">
+                                    </div>
+                                    <div>
+                                        <label>Poids (kg)</label>
+                                        <input type="number" class="series-weight" step="0.5" placeholder="Poids" value="${series.weight || ''}">
+                                    </div>
+                                    <div>
+                                        <label>Notes</label>
+                                        <input type="text" class="series-notes" placeholder="Notes" value="${series.notes || ''}">
+                                    </div>
+                                    <button type="button" class="btn btn-danger btn-icon btn-sm" onclick="this.parentElement.remove()">🗑</button>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="addSeries(this.parentElement)">+ Ajouter une série</button>
+                    `;
+                    list.appendChild(item);
+                });
+            }
+        }
+
+        // FORM SAVE
+        function saveForm() {
+            const form = document.getElementById('mainForm');
+            const inputs = form.querySelectorAll('[name]');
+            let isValid = true;
+
+            inputs.forEach(input => {
+                if (input.hasAttribute('required') && !input.value.trim()) {
+                    isValid = false;
+                }
+            });
+
+            if (!isValid) {
+                showAlert('Veuillez remplir tous les champs obligatoires', 'error');
+                return;
+            }
+
+            saveCurrentForm();
+            showAlert('Questionnaire sauvegardé avec succès', 'success');
+            setTimeout(() => goHome(), 1500);
+        }
+
+        function setupFormListeners() {
+            const nbRepasInput = document.querySelector('input[name="nbRepas"]');
+            if (nbRepasInput) {
+                nbRepasInput.addEventListener('change', updateRepasFields);
+            }
+        }
+
+        function showAlert(message, type) {
+            const container = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert ${type === 'error' ? 'alert-error' : ''}`;
+            alert.textContent = message;
+            container.innerHTML = '';
+            container.appendChild(alert);
+            setTimeout(() => alert.remove(), 4000);
+        }
+
+        // EXPORT PDF
+        async function exportToPDF() {
+            saveCurrentForm();
+            const element = document.getElementById('formContent');
+            const opt = {
+                margin: 10,
+                filename: `${currentQuestionnaire.name}-${new Date().toLocaleDateString()}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+            };
+            await html2pdf().set(opt).from(element).save();
+        }
+
+        // Initialize
+        loadQuestionnaires();
+    </script>
+</body>
+</html>
